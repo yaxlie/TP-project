@@ -26,4 +26,4 @@ services:
     volumes:
       - ./:/code
     ports:
-      - "8001:8001"
+      - "8002:8001"
