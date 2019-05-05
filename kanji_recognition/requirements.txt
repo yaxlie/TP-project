@@ -1,0 +1,4 @@
+awscli
+click
+Sphinx
+flake8
