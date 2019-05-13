@@ -2,6 +2,7 @@ package com.kanjiapp.api.utils
 
 import android.app.Activity
 import android.util.Log
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -9,7 +10,8 @@ import com.android.volley.toolbox.Volley
 
 
 
-abstract class Post(private val activity: Activity) : ApiClient() {
+abstract class Post(private val activity: Activity, url: String) : ApiClient() {
+    override val URL = url
     abstract val path: String
     abstract val content: String
 
@@ -40,6 +42,8 @@ abstract class Post(private val activity: Activity) : ApiClient() {
                     return "application/json; charset=utf-8"
                 }
             }
+            request.retryPolicy = DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
             queue.add(request)
         }.start()
     }
