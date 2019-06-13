@@ -23,20 +23,22 @@ def check(label, image):
 	plt.show()
 	plt.close()
 
-	isCorrect = correct_classification(image, label)
+	correct = correct_classification(image, label)
 
 	response = {}
-	response['correct'] = isCorrect
+	response['correct'] = correct[0]
+	response['prob_correct'] = correct[1]
 	json_response = json.dumps(response)
 
 	return json_response 
 
 def correct_classification(image, label):
 	isCorrect = True
+	probCorrect = 0.9
 
 	# TODO: Use model to check if image-label pair is correct
 
-	return isCorrect
+	return (isCorrect, probCorrect)
 
 
 
