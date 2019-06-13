@@ -1,7 +1,8 @@
 package com.kanjiapp.Models
 
 data class Sign (
-    val jp: String,
-    val rom: String,
-    val label: String
+    val index: String,
+    val codepoint: String,
+    val char: String,
+    val rom: String
 )
