@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Exception
 import android.graphics.Bitmap
 import android.util.Base64
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -16,6 +18,7 @@ import java.io.ByteArrayOutputStream
 import androidx.core.view.drawToBitmap
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kanjiapp.Models.Response
 import com.kanjiapp.Models.Sign
 import com.kanjiapp.Models.Task
 import com.kanjiapp.Objects.SignsCollection
@@ -42,55 +45,84 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        get_aigns()
+        try {
+            get_aigns()
+            set_pencil_size()
 
-        checkButton.setOnClickListener {
-            val resultProgress = ProgressDialog.progressDialog(this)
-            resultProgress.statusText.text = "Sprawdzanie wyniku..."
-            resultProgress.show()
+            checkButton.setOnClickListener {
+                val resultProgress = ProgressDialog.progressDialog(this)
+                resultProgress.statusText.text = "Sprawdzanie wyniku..."
+                resultProgress.show()
 
-            var image = draw_view.drawToBitmap()
-            image = process_image(image)
-            val label = sign!!.codepoint
-            val task = Task(label, BitMapToString(image))
-            val gson = GsonBuilder().create()
-            val jsonObject =  JSONObject(gson.toJson(task))
+                var image = draw_view.drawToBitmap()
+                image = process_image(image)
+                val label = sign?.codepoint.orEmpty()
+                val task = Task(label, BitMapToString(image))
+                val gson = GsonBuilder().create()
+                val jsonObject = JSONObject(gson.toJson(task))
 
-            object: Check(this, "http://$address", jsonObject.toString()){
-                override fun onSuccess(response: String) {
-                    Log.i(TAG, response)
-                    nextSign()
-                    Toast.makeText(this@MainActivity, response, Toast.LENGTH_LONG).show()
-                    resultProgress.dismiss()
-                }
-                override fun onFailure(error: Exception) {
-                    Log.e(TAG, "Błąd: ${error.message}")
-                    resultProgress.dismiss()
-                }
-            }.execute()
-        }
+                object : Check(this, "http://$address", jsonObject.toString()) {
+                    override fun onSuccess(response: String) {
+                        Log.i(TAG, response)
+                        val result = gson.fromJson(response, Response::class.java)
+                        process_response(result)
+                        resultProgress.dismiss()
+                    }
 
-        refreshButton.setOnClickListener {
-            draw_view.clearCanvas()
-        }
-
-        settingsButton.setOnClickListener {
-            val builder = AlertDialog.Builder(this)
-            val inflater = layoutInflater
-            builder.setTitle("Set server address")
-            val dialogLayout = inflater.inflate(R.layout.settings_dialog, null)
-            dialogLayout.editText.hint = address
-            val editText  = dialogLayout.findViewById<EditText>(R.id.editText)
-            builder.setView(dialogLayout)
-            builder.setPositiveButton("OK") {
-                    dialogInterface, i ->
-                val addr = editText.text.toString()
-                get_aigns()
-                if (!addr.isNullOrEmpty()){
-                    address = editText.text.toString()
-                }
+                    override fun onFailure(error: Exception) {
+                        Log.e(TAG, "Błąd: ${error.toString()}")
+                        resultProgress.dismiss()
+                    }
+                }.execute()
             }
-            builder.show()
+
+            refreshButton.setOnClickListener {
+                draw_view.clearCanvas()
+            }
+
+            settingsButton.setOnClickListener {
+                val builder = AlertDialog.Builder(this)
+                val inflater = layoutInflater
+                builder.setTitle("Set server address")
+                val dialogLayout = inflater.inflate(R.layout.settings_dialog, null)
+                dialogLayout.editText.hint = address
+                val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+                builder.setView(dialogLayout)
+                builder.setPositiveButton("OK") { dialogInterface, i ->
+                    val addr = editText.text.toString()
+                    get_aigns()
+                    if (!addr.isNullOrEmpty()) {
+                        address = editText.text.toString()
+                    }
+                }
+                builder.show()
+            }
+        }
+        catch (exception: Exception){
+            Toast.makeText(this, exception.message, Toast.LENGTH_LONG)
+        }
+    }
+
+    fun set_pencil_size(){
+        val display = windowManager.defaultDisplay
+        val size = display.width/35f
+        draw_view.mPaint.strokeWidth = size
+    }
+
+    fun process_response(response: Response){
+        if(response.correct){
+            nextSign()
+            Toast.makeText(
+                this@MainActivity,
+                "Poprawna odpowiedź! ${response.prob_correct}%", Toast.LENGTH_LONG
+            ).show()
+        }
+        else{
+            Toast.makeText(
+                this@MainActivity,
+                "Błędna odpowiedź! ${response.prob_correct}%", Toast.LENGTH_LONG
+            ).show()
+            draw_view.clearCanvas()
         }
     }
 
@@ -103,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         object : GetSigns(this, "http://$address") {
             override fun onFailure(error: Exception) {
                 Log.e(TAG, "Nie można pobrać znaków!")
-                Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, error.toString(), Toast.LENGTH_LONG).show()
                 resultProgress.dismiss()
             }
 
@@ -126,8 +158,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun nextSign(){
+        draw_view.clearCanvas()
         sign = SignsCollection.getRandomSign()
-        signText.text = sign!!.rom
+        signText.text = sign?.rom.orEmpty()
     }
 
     fun BitMapToString(bitmap: Bitmap): String {
