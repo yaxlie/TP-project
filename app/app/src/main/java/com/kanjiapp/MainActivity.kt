@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
                 var image = draw_view.drawToBitmap()
                 image = process_image(image)
-                val label = sign!!.codepoint
+                val label = sign?.codepoint.orEmpty()
                 val task = Task(label, BitMapToString(image))
                 val gson = GsonBuilder().create()
                 val jsonObject = JSONObject(gson.toJson(task))
@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
     fun nextSign(){
         draw_view.clearCanvas()
         sign = SignsCollection.getRandomSign()
-        signText.text = sign!!.rom
+        signText.text = sign?.rom.orEmpty()
     }
 
     fun BitMapToString(bitmap: Bitmap): String {
