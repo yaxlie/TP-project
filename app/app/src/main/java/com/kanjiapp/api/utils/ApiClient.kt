@@ -4,7 +4,7 @@ import com.android.volley.VolleyError
 import java.lang.Exception
 
 abstract class ApiClient : IResponseListener {
-    val URL = "http://todo" //todo
+    abstract val URL: String
     val TAG = "API_CLIENT"
 
     abstract fun execute()

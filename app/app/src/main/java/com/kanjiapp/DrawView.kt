@@ -25,7 +25,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs) {
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
-            strokeWidth = 8f
+            strokeWidth = 16f
             isAntiAlias = true
         }
     }
