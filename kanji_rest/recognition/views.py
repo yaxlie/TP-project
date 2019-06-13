@@ -8,6 +8,6 @@ from recognition.lib import example
 def recognize(request: HttpRequest):
 	if request.method == 'POST':
 		body = json.loads(request.body)
-		return HttpResponse(example.check(body["name"], body["image"]))
+		return HttpResponse(example.check(body["label"], body["image"]))
 	else:
 		return HttpResponse("{error}")
