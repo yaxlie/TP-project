@@ -2,5 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	path('kanji', views.recognize, name='recognize')
+	path('check', views.check, name='check'),
+	path('signs', views.get_signs, name='signs')
 ]

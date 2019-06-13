@@ -42,7 +42,7 @@ abstract class Post(private val activity: Activity, url: String) : ApiClient() {
                     return "application/json; charset=utf-8"
                 }
             }
-            request.retryPolicy = DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            request.retryPolicy = DefaultRetryPolicy(50000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
             queue.add(request)
         }.start()

@@ -15,9 +15,11 @@ import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 import androidx.core.view.drawToBitmap
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.kanjiapp.Models.Sign
 import com.kanjiapp.Models.Task
 import com.kanjiapp.Objects.SignsCollection
+import com.kanjiapp.api.GetSigns
 import org.json.JSONObject
 
 import kotlinx.android.synthetic.main.progress_dialog.*
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     val BITMAP_WIDTH = 32
     val BITMAP_HEIGHT = 32
 
-    var sign: Sign = SignsCollection.getRandomSign()
+    var sign: Sign ?= null
 
     var address = "192.168.1.105:8000"
     var signName = "tree"
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        signText.text = sign.rom
+        get_aigns()
 
         checkButton.setOnClickListener {
             val resultProgress = ProgressDialog.progressDialog(this)
@@ -49,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
             var image = draw_view.drawToBitmap()
             image = process_image(image)
-            val label = sign.label
+            val label = sign!!.codepoint
             val task = Task(label, BitMapToString(image))
             val gson = GsonBuilder().create()
             val jsonObject =  JSONObject(gson.toJson(task))
@@ -83,6 +85,7 @@ class MainActivity : AppCompatActivity() {
             builder.setPositiveButton("OK") {
                     dialogInterface, i ->
                 val addr = editText.text.toString()
+                get_aigns()
                 if (!addr.isNullOrEmpty()){
                     address = editText.text.toString()
                 }
@@ -91,24 +94,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun get_aigns() {
+        val resultProgress = ProgressDialog.progressDialog(this)
+        resultProgress.statusText.text = "Pobieranie znaków..."
+//        resultProgress.setCancelable(false)
+        resultProgress.show()
+
+        object : GetSigns(this, "http://$address") {
+            override fun onFailure(error: Exception) {
+                Log.e(TAG, "Nie można pobrać znaków!")
+                Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
+                resultProgress.dismiss()
+            }
+
+            override fun onSuccess(response: String) {
+                Log.i(TAG, "Pobrano listę znaków:\n$response")
+                val type = object : TypeToken<ArrayList<Sign>>() {}.type
+                val signs = gson.fromJson<ArrayList<Sign>>(response, type)
+                SignsCollection.signs.addAll(signs)
+                nextSign()
+                Toast.makeText(this@MainActivity, "Pobrano znaki.", Toast.LENGTH_LONG).show()
+                resultProgress.dismiss()
+            }
+        }.execute()
+    }
+
     fun process_image(bitmap: Bitmap): Bitmap {
-//        bitmap.height = BITMAP_HEIGHT
-//        bitmap.width = BITMAP_WIDTH
-//        for(w in 0..bitmap.width){
-//            for(h in 0..bitmap.height){
-//                val x = bitmap.getPixel(w,h)
-//
-//            }
-//        }
-        var result = bitmap
-//        result = Bitmap.createScaledBitmap(bitmap, BITMAP_WIDTH, BITMAP_HEIGHT, false)
+        val result = bitmap
         Log.i(TAG, "\n" + BitMapToString(result).trim() + "\n")
         return result
     }
 
     fun nextSign(){
         sign = SignsCollection.getRandomSign()
-        signText.text = sign.rom
+        signText.text = sign!!.rom
     }
 
     fun BitMapToString(bitmap: Bitmap): String {
