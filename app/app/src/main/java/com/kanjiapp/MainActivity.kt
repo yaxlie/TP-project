@@ -19,7 +19,6 @@ import com.kanjiapp.Models.Task
 import com.kanjiapp.Objects.SignsCollection
 import org.json.JSONObject
 
-import com.kanjiapp.models.Answer
 import kotlinx.android.synthetic.main.progress_dialog.*
 import kotlinx.android.synthetic.main.settings_dialog.view.*
 
@@ -47,8 +46,7 @@ class MainActivity : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val jsonObject =  JSONObject(gson.toJson(task))
 
-            val answer = Answer(signName, jsonObject.toString())
-            object: Check(this, "http://$address", JSONObject(gson.toJson(answer)).toString()){
+            object: Check(this, "http://$address", jsonObject.toString()){
                 override fun onSuccess(response: String) {
                     Log.i(TAG, response)
                     nextSign()
