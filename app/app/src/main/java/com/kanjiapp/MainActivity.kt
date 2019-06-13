@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Exception
 import android.graphics.Bitmap
 import android.util.Base64
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         try {
             get_aigns()
+            set_pencil_size()
 
             checkButton.setOnClickListener {
                 val resultProgress = ProgressDialog.progressDialog(this)
@@ -99,6 +102,13 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, exception.message, Toast.LENGTH_LONG)
         }
     }
+
+    fun set_pencil_size(){
+        val display = windowManager.defaultDisplay
+        val size = display.width/35f
+        draw_view.mPaint.strokeWidth = size
+    }
+
     fun process_response(response: Response){
         if(response.correct){
             nextSign()

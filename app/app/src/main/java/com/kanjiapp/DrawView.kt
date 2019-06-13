@@ -10,8 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 
 class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs) {
-
-    private var mPaint = Paint()
+    var mPaint = Paint()
     var mPath = Path()
 
     private var mCurX = 0f
@@ -25,7 +24,7 @@ class DrawView(context: Context, attrs: AttributeSet) : View(context, attrs) {
             style = Paint.Style.STROKE
             strokeJoin = Paint.Join.ROUND
             strokeCap = Paint.Cap.ROUND
-            strokeWidth = 16f
+            strokeWidth = 25f
             isAntiAlias = true
         }
     }
