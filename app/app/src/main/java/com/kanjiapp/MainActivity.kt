@@ -11,6 +11,7 @@ import android.util.Base64
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 import androidx.core.view.drawToBitmap
 import com.google.gson.GsonBuilder
@@ -21,8 +22,14 @@ import org.json.JSONObject
 
 import kotlinx.android.synthetic.main.progress_dialog.*
 import kotlinx.android.synthetic.main.settings_dialog.view.*
+import java.util.*
+import java.util.stream.IntStream
 
 class MainActivity : AppCompatActivity() {
+    val TAG = this.javaClass.name
+    val BITMAP_WIDTH = 32
+    val BITMAP_HEIGHT = 32
+
     var sign: Sign = SignsCollection.getRandomSign()
 
     var address = "192.168.1.105:8000"
@@ -40,7 +47,8 @@ class MainActivity : AppCompatActivity() {
             resultProgress.statusText.text = "Sprawdzanie wyniku..."
             resultProgress.show()
 
-            val image = draw_view.drawToBitmap()
+            var image = draw_view.drawToBitmap()
+            image = process_image(image)
             val label = sign.label
             val task = Task(label, BitMapToString(image))
             val gson = GsonBuilder().create()
@@ -81,6 +89,21 @@ class MainActivity : AppCompatActivity() {
             }
             builder.show()
         }
+    }
+
+    fun process_image(bitmap: Bitmap): Bitmap {
+//        bitmap.height = BITMAP_HEIGHT
+//        bitmap.width = BITMAP_WIDTH
+//        for(w in 0..bitmap.width){
+//            for(h in 0..bitmap.height){
+//                val x = bitmap.getPixel(w,h)
+//
+//            }
+//        }
+        var result = bitmap
+//        result = Bitmap.createScaledBitmap(bitmap, BITMAP_WIDTH, BITMAP_HEIGHT, false)
+        Log.i(TAG, "\n" + BitMapToString(result).trim() + "\n")
+        return result
     }
 
     fun nextSign(){
