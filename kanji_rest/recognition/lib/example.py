@@ -7,6 +7,8 @@ import cv2
 import io
 import json
 import pandas as pd
+from PIL import Image
+import scipy
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -24,6 +26,9 @@ def check(label, image):
     img = crop_image(255 - img)
 
     img = resize_image(img, 28, 28)
+
+    kernel = np.ones((3,3),np.uint8)
+    img = cv2.dilate(img, kernel)
 
     # plt.imshow(img, interpolation='nearest')
     # plt.show()
@@ -57,6 +62,8 @@ def check(label, image):
     response['prob_correct'] = float(distr[0][classes['rom'][classes['rom'] == label].index[0]])
     json_response = json.dumps(response)
 
+    # scipy.misc.imsave('images/{}_{}_{}.png'.format(response['correct'], response['prob_correct'], label), img)
+
     return json_response
 
 
@@ -78,9 +85,20 @@ def crop_image(img):
     st_x = min(pixels, key=lambda x: x[1])[1]
     end_x = max(pixels, key=lambda x: x[1])[1]
 
+
     img = img[st_y:end_y, st_x:end_x]
 
-    return img
+    # centrowanie
+    height = end_x - st_x
+    width = end_y - st_y
+
+    a = max(width, height)
+
+    layout = np.zeros((a, a))
+
+    layout[int((a-width)/2):width+int((a-width)/2), int((a-height)/2):height+int((a-height)/2)] = img[::,::]
+
+    return layout
 
 
 def resize_image(img, x, y):
