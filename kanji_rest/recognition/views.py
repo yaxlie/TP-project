@@ -6,12 +6,12 @@ import json
 from tensorflow.keras.models import load_model
 
 from recognition.lib import example, signs
-
+import os
 
 class RecognitionView(APIView):
 
     def __init__(self, **kwargs):
-        super(RecognitionView).__init__(kwargs)
+        super(RecognitionView, self).__init__(**kwargs)
         self.model = load_model("model/model_kanji.ckpt")
 
     def get(self, request, format=None):
