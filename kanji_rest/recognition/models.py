@@ -6,5 +6,4 @@ import tensorflow as tf
 
 model = load_model("model/model_kanji.ckpt")
 
-global graph
 graph = tf.get_default_graph() 

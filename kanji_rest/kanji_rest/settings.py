@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from django.db import models
+from tensorflow.keras.models import load_model
+import tensorflow as tf
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +29,10 @@ SECRET_KEY = '-ba=t=ma5v06a12=s0$@by+kf(e4m0@au!!c517s5s0g!2b4c4'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+# global MODEL
+# MODEL = load_model("model/model_kanji.ckpt")
+# graph = tf.get_default_graph() 
 
 
 # Application definition
