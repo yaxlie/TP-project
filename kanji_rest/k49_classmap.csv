@@ -9,7 +9,7 @@ index,codepoint,char,rom
 7,U+304F,く,ku
 8,U+3051,け,ke
 9,U+3053,こ,ko
-10,U+3055,さ,są
+10,U+3055,さ,sa
 11,U+3057,し,shi
 12,U+3059,す,su
 13,U+305B,せ,se
@@ -46,5 +46,5 @@ index,codepoint,char,rom
 44,U+3090,ゐ,wi
 45,U+3091,ゑ,we
 46,U+3092,を,wo
-47,U+3093,ん,na
+47,U+3093,ん,n
 48,U+309D,ゝ,iteration mark
