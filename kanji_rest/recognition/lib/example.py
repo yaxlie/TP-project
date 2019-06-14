@@ -6,28 +6,55 @@ import base64
 import cv2
 import io
 import json
+import pandas as pd
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+# from recognition.models import model, graph
 
 
-def check(label, image, model):
+def check(label, image):
     img = base64.b64decode(image)
     img = io.BytesIO(img)
     img = mpimg.imread(img, format='PNG')
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    img = crop_image(img)
+    img = crop_image(255 - img)
 
-    img = resize_image(img, 32, 32)
+    img = resize_image(img, 28, 28)
 
-    plt.imshow(img, interpolation='nearest')
-    plt.show()
-    plt.close()
+    # plt.imshow(img, interpolation='nearest')
+    # plt.show()
+    # plt.close()
+
+    classes = pd.read_csv("k49_classmap.csv")
 
     correct = correct_classification(image, label)
+    img = img.reshape(1, 28, 28)
+    model = load_model("model/model_kanji.ckpt")
 
+    # def test_gen(X_test):
+    #     datagen = ImageDataGenerator(featurewise_center=True,
+    #        featurewise_std_normalization=True)
+    #     Y_trash = np.ones(X_test.shape[0])
+    #     flow = datagen.flow(X_test, Y_trash)
+    #     for X,Y in flow:
+    #         yield X #ignore Y
+    # distr = model.predict_generator(test_gen(img), steps = 1)
+    # datagen_test = ImageDataGenerator(featurewise_center=True,
+    #   featurewise_std_normalization=True)
+
+    # datagen_test.flow(img)
+    distr = model.predict(img)
+    predicted_label = classes['rom'][np.argmax(distr)]
+    print(predicted_label)
+    
+    # print(classes['rom'][classes['rom'] == label].index[0])
     response = {}
-    response['correct'] = correct[0]
-    response['prob_correct'] = correct[1]
+    response['correct'] = predicted_label == label
+    response['prob_correct'] = float(distr[0][classes['rom'][classes['rom'] == label].index[0]])
     json_response = json.dumps(response)
 
     return json_response
