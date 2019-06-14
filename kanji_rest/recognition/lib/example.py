@@ -28,9 +28,9 @@ graph = tf.compat.v1.get_default_graph()
 # sess = tf.Sessi
 
 def check(label, image):
+    print("New Request for {}!".format(label))
     global graph
     global sess
-    global variables
     with graph.as_default():
         with sess.as_default():
             img = base64.b64decode(image)
