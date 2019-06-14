@@ -1,21 +1,23 @@
-from django.http import HttpResponse, HttpRequest
+from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 import json
 
-from recognition.lib import example
-from recognition.lib import signs
+from tensorflow.keras.models import load_model
 
-@csrf_exempt
-def check(request: HttpRequest):
-	if request.method == 'POST':
-		body = json.loads(request.body)
-		return HttpResponse(example.check(body["label"], body["image"]))
-	else:
-		return HttpResponse("{error}")
+from recognition.lib import example, signs
 
-@csrf_exempt
-def get_signs(request: HttpRequest):
-	if request.method == 'GET':
-		return HttpResponse(signs.get_signs())
-	else:
-		return HttpResponse("{error}")
+
+class RecognitionView(APIView):
+
+    def __init__(self, **kwargs):
+        super(RecognitionView).__init__(kwargs)
+        self.model = load_model("model/model_kanji.ckpt")
+
+    def get(self, request, format=None):
+        return HttpResponse(signs.get_signs())
+
+    def post(self, request, format=None):
+
+        body = json.loads(request.body)
+        return HttpResponse(example.check(body["label"], body["image"], self.model))

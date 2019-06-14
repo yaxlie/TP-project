@@ -1,0 +1,3 @@
+{
+  "python.pythonPath": "${workspaceFolder}/kanji_rest/venv/bin/python"
+}
