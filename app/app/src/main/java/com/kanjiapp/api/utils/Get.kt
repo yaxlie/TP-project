@@ -3,6 +3,7 @@ package com.kanjiapp.api.utils
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -29,7 +30,8 @@ abstract class Get(private val activity: Activity, url: String) : ApiClient() {
                         onFailure(_error)
                     }) {
                 }
-
+                request.retryPolicy = DefaultRetryPolicy(10000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
                 queue.add(request)
             }
             catch (ex: Exception){

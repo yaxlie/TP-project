@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorBackground"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity" android:id="@+id/mainLayout">
     <androidx.constraintlayout.widget.Guideline
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.9"
@@ -62,6 +62,16 @@
                 app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"
                 app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
                 tools:ignore="VectorDrawableCompat"/>
+        <TextView
+                android:text="TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintStart_toEndOf="@+id/checkButton"
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent" android:visibility="invisible" android:id="@+id/kanjiText"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
@@ -72,4 +82,12 @@
             app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/draw_view" tools:ignore="VectorDrawableCompat"
             app:backgroundTint="@color/colorBackground"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:backgroundTint="@color/colorBackground"
+            android:clickable="true" app:srcCompat="@android:drawable/ic_media_ff"
+            android:id="@+id/nextButton" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/draw_view"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

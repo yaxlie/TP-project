@@ -9,6 +9,7 @@ import java.lang.Exception
 import android.graphics.Bitmap
 import android.util.Base64
 import android.util.DisplayMetrics
+import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.Toast
@@ -32,13 +33,12 @@ import java.util.stream.IntStream
 
 class MainActivity : AppCompatActivity() {
     val TAG = this.javaClass.name
-    val BITMAP_WIDTH = 32
-    val BITMAP_HEIGHT = 32
 
     var sign: Sign ?= null
 
-    var address = "192.168.1.105:8000"
-    var signName = "tree"
+    val activity = this
+
+    var address = "192.168.43.148:8000"
     val gson = GsonBuilder().create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,10 +56,14 @@ class MainActivity : AppCompatActivity() {
 
                 var image = draw_view.drawToBitmap()
                 image = process_image(image)
-                val label = sign?.codepoint.orEmpty()
+                val label = sign?.rom.orEmpty()
                 val task = Task(label, BitMapToString(image))
                 val gson = GsonBuilder().create()
                 val jsonObject = JSONObject(gson.toJson(task))
+
+                nextButton.setOnClickListener {
+                    nextSign()
+                }
 
                 object : Check(this, "http://$address", jsonObject.toString()) {
                     override fun onSuccess(response: String) {
@@ -71,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onFailure(error: Exception) {
                         Log.e(TAG, "Błąd: ${error.toString()}")
+                        Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
                         resultProgress.dismiss()
                     }
                 }.execute()
@@ -105,7 +110,7 @@ class MainActivity : AppCompatActivity() {
 
     fun set_pencil_size(){
         val display = windowManager.defaultDisplay
-        val size = display.width/35f
+        val size = display.width/25f
         draw_view.mPaint.strokeWidth = size
     }
 
@@ -116,13 +121,23 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity,
                 "Poprawna odpowiedź! ${response.prob_correct}%", Toast.LENGTH_LONG
             ).show()
+            mainLayout.setBackgroundColor(resources.getColor(R.color.colorCorrect))
         }
         else{
             Toast.makeText(
                 this@MainActivity,
                 "Błędna odpowiedź! ${response.prob_correct}%", Toast.LENGTH_LONG
             ).show()
-            draw_view.clearCanvas()
+            kanjiText.text = sign?.char.orEmpty()
+            kanjiText.visibility = View.VISIBLE
+//            draw_view.clearCanvas()
+            mainLayout.setBackgroundColor(resources.getColor(R.color.colorWrong))
+        }
+        Thread {
+            Thread.sleep(500)
+            activity.runOnUiThread({
+                mainLayout.setBackgroundColor(resources.getColor(R.color.colorBackground))
+            })
         }
     }
 
@@ -161,6 +176,9 @@ class MainActivity : AppCompatActivity() {
         draw_view.clearCanvas()
         sign = SignsCollection.getRandomSign()
         signText.text = sign?.rom.orEmpty()
+        kanjiText.text = sign?.char.orEmpty()
+        kanjiText.visibility = View.VISIBLE
+        mainLayout.setBackgroundColor(resources.getColor(R.color.colorBackground))
     }
 
     fun BitMapToString(bitmap: Bitmap): String {
